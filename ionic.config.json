@@ -1,0 +1,8 @@
+{
+  "name": "IFreeTalk",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue",
+  "id": "1aace13f"
+}
