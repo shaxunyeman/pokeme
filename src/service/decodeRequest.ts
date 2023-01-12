@@ -2,13 +2,13 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-07 17:53:44
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 18:11:06
+ * @LastEditTime: 2023-01-12 13:43:26
  * @FilePath: /pokeme/src/service/decodeRequest.ts
  * @Description: 
  */
 
 import { PokeRequest } from "@/model/protocols";
-import { IJwtVerifier } from "@/model/jwt";
+import { IJwtVerifier } from "@/service/jwt";
 
 export class RequestDecoder {
     private jwtVerifier: IJwtVerifier;

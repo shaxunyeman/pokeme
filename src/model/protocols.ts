@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:38:28
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 18:14:58
+ * @LastEditTime: 2023-01-12 13:53:23
  * @FilePath: /pokeme/src/model/protocols.ts
  * @Description: request and response for inviting
  */

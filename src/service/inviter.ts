@@ -2,15 +2,15 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:12:31
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 18:10:10
+ * @LastEditTime: 2023-01-12 13:43:23
  * @FilePath: /pokeme/src/service/inviter.ts
  * @Description: invite a person
  */
 
 import { Identifer } from '@/model/identifer';
 import { PokeRequest, PokeCommand, InviterBody } from '@/model/protocols';
-import { ISigner } from '@/model/signer';
-import { IJwtSigner } from '@/model/jwt';
+import { ISigner } from '@/service/signer';
+import { IJwtSigner } from '@/service/jwt';
 import { sha256 } from '@/unit/crypto';
 
 

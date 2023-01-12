@@ -2,15 +2,15 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 19:36:34
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 16:15:54
- * @FilePath: /i-free-talk/tests/unit/inviter.spec.ts
+ * @LastEditTime: 2023-01-12 13:51:54
+ * @FilePath: /pokeme/tests/unit/inviter.spec.ts
  * @Description: 
  */
 
-import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/model/impl/jsonRSAWebToken";
-import { RSASigner, RSAVerifier } from "@/model/impl/rsaSigner";
+import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/service/impl/jsonRSAWebToken";
+import { RSASigner, RSAVerifier } from "@/service/impl/rsaSigner";
 import { RASKeyPair } from "@/unit/rsa";
-import { JwtPayload } from "@/model/jwt";
+import { PokeJwtPayload } from  "@/model/jwtPayload"
 import { PokeCommand } from '@/model/protocols'
 import { createInviteRequest } from './units';
 
@@ -37,7 +37,7 @@ describe('inviter', () => {
 
         expect(verifier.verify(validRequest.request.body, validRequest.request.signature as string)).toBeTruthy();
 
-        const decoded = jwtVerifier.verify(validRequest.request.body) as JwtPayload;
+        const decoded = jwtVerifier.verify(validRequest.request.body) as PokeJwtPayload;
         expect(decoded.id).toEqual("example@163.com");
         expect(decoded.mail).toEqual("example@163.com");
         expect(decoded.publicKey).toEqual(rsa.publicKey);
@@ -56,7 +56,7 @@ describe('inviter', () => {
         try {
             // use an invalid public key 
             const jwtVerifier: JsonRSAWebTokenVerifier = new JsonRSAWebTokenVerifier(rsa_2.publicKey);
-            decoded = jwtVerifier.verify(validRequest.request.body) as JwtPayload;
+            decoded = jwtVerifier.verify(validRequest.request.body) as PokeJwtPayload;
         } catch (err: any) {
             ;
         } finally {

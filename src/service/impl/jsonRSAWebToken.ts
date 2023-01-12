@@ -2,12 +2,13 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 19:27:53
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-06 00:19:23
- * @FilePath: /i-free-talk/src/service/impl/jsonRSAWebToken.ts
+ * @LastEditTime: 2023-01-12 13:46:04
+ * @FilePath: /pokeme/src/model/impl/jsonRSAWebToken.ts
  * @Description: 
  */
 import jwt from 'jsonwebtoken';
-import { IJwtSigner, IJwtVerifier, JwtPayload } from '@/model/jwt';
+import { IJwtSigner, IJwtVerifier } from '@/service/jwt';
+import { PokeJwtPayload } from '@/model/jwtPayload'
 
 export class JsonRSAWebTokenSigner implements IJwtSigner {
     private privateKey: string
@@ -27,7 +28,7 @@ export class JsonRSAWebTokenVerifier implements IJwtVerifier {
     constructor(publicKey: string) {
         this.publicKey = publicKey;
     }
-    public verify(token: string): JwtPayload | string{
+    public verify(token: string): PokeJwtPayload | string{
         return jwt.verify(token, this.publicKey, { algorithms: ['RS256'] });
     }
 }

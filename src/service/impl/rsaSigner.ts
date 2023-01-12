@@ -2,12 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-04 23:23:37
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 14:18:09
- * @FilePath: /i-free-talk/src/model/impl/rsaSigner.ts
+ * @LastEditTime: 2023-01-12 13:42:14
+ * @FilePath: /pokeme/src/model/impl/rsaSigner.ts
  * @Description: 
  */
 
-import { ISigner, IVerifier } from "@/model/signer";
+import { ISigner, IVerifier } from "@/service/signer";
 import * as crypto from "crypto";
 
 // refer to: https://blog.logrocket.com/node-js-crypto-module-a-tutorial/

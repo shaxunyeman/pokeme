@@ -2,15 +2,15 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:22:41
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 18:12:50
+ * @LastEditTime: 2023-01-12 13:44:57
  * @FilePath: /pokeme/src/service/invitee.ts
  * @Description: handle an invite request
  */
 
 import { Identifer } from '@/model/identifer';
 import { PokeRequest, PokeCommand, InviteeBody } from '@/model/protocols';
-import { ISigner, IVerifier } from '@/model/signer';
-import { IJwtSigner, IJwtVerifier } from '@/model/jwt';
+import { ISigner, IVerifier } from '@/service/signer';
+import { IJwtSigner, IJwtVerifier } from '@/service/jwt';
 import { sha256 } from '@/unit/crypto';
 
 export class Invitee {

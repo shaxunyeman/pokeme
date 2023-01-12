@@ -8,8 +8,8 @@
  */
 
 import { Invitee } from "@/service/invitee";
-import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/model/impl/jsonRSAWebToken";
-import { RSASigner, RSAVerifier } from "@/model/impl/rsaSigner";
+import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/service/impl/jsonRSAWebToken";
+import { RSASigner, RSAVerifier } from "@/service/impl/rsaSigner";
 import { RASKeyPair } from "@/unit/rsa";
 import { InviterBody,PokeCommand } from '@/model/protocols'
 import { createInviteRequest } from './units';
