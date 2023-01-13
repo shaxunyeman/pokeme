@@ -2,17 +2,17 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 18:10:39
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-13 22:04:20
+ * @LastEditTime: 2023-01-13 22:31:45
  * @FilePath: /pokeme/tests/unit/message.spec.ts
  * @Description: 
  */
 
 import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/service/impl/jsonRSAWebToken";
-import { RSASigner, RSAVerifier } from "@/service/impl/rsaSigner";
+import { RSASigner, RSAVerifier, RASAsymmetric } from "@/service/impl/rsaSigner";
 import { PokeRequestDecoder, PokeRequestValidator } from "@/service/requestTool";
 import { Account } from "@/service/dac/account";
 import { ChatMessage, PokeMessageType, MessageBody } from '@/model/protocols'
-import { RASKeyPair, RASAsymmetric } from "@/unit/rsa";
+import { RASKeyPair,  } from "@/unit/rsa";
 import { Symmetric } from "@/unit/crypto"
 import { Factory } from './units';
 
@@ -37,13 +37,6 @@ describe('messages', () => {
         new JsonRSAWebTokenSigner(fromRAS.privateKey)
     );
 
-    // it('test RASAsymmetric', () => {
-    //     const msg = 'hello，I am ♠️ pokeme';
-    //     const crypted = RASAsymmetric.cipher(fromRAS.publicKey, msg);
-    //     const decrypted = RASAsymmetric.decipher(fromRAS.privateKey, crypted);
-    //     console.log(decrypted);
-    // })
-
     it('verify a valid message request with a correct key', () => {
         // create a chatmessage
         const message = fatory.newMessage(toAccount, "This is a message comes from pokeme./n这是来自于 pokeme 的测试消息。");
@@ -65,7 +58,8 @@ describe('messages', () => {
 
         const msgBody: MessageBody = chatMsg.body[0];
         expect(msgBody.passphrase).toBeTruthy();
-        const decryptedPassphrase = RASAsymmetric.decipher(toRSA.privateKey, msgBody.passphrase as string);
+        const asymmetric: RASAsymmetric = new RASAsymmetric();
+        const decryptedPassphrase = asymmetric.decipher(toRSA.privateKey, msgBody.passphrase as string);
         const decryptedMsg = Symmetric.decipher(decryptedPassphrase, msgBody.message);
         expect(decryptedMsg).toEqual('This is a message comes from pokeme./n这是来自于 pokeme 的测试消息。')
     })

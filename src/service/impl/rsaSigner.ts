@@ -2,12 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-04 23:23:37
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-12 13:42:14
- * @FilePath: /pokeme/src/model/impl/rsaSigner.ts
+ * @LastEditTime: 2023-01-13 22:25:32
+ * @FilePath: /pokeme/src/service/impl/rsaSigner.ts
  * @Description: 
  */
 
-import { ISigner, IVerifier } from "@/service/signer";
+import { ISigner, IVerifier, IAsymmetric } from "@/service/signer";
 import * as crypto from "crypto";
 
 // refer to: https://blog.logrocket.com/node-js-crypto-module-a-tutorial/
@@ -39,5 +39,15 @@ export class RSAVerifier implements IVerifier {
         verifier.write(token);
         verifier.end();
         return verifier.verify(this.publicKey, signature, 'hex');
+    }
+}
+
+export class RASAsymmetric implements IAsymmetric {
+    public cipher(publicKey: string, message: string): string {
+        return crypto.publicEncrypt(publicKey, Buffer.from(message)).toString('hex');
+    }
+
+    public decipher(privateKey: string, encrypted: string): string {
+        return crypto.privateDecrypt({key: privateKey, passphrase: ''}, Buffer.from(encrypted, 'hex')).toString();
     }
 }
