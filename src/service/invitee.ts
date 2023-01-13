@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:22:41
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-12 13:44:57
+ * @LastEditTime: 2023-01-13 21:17:06
  * @FilePath: /pokeme/src/service/invitee.ts
  * @Description: handle an invite request
  */
@@ -16,29 +16,17 @@ import { sha256 } from '@/unit/crypto';
 export class Invitee {
     private signer : ISigner;
     private jwtSigner: IJwtSigner;
-    private verifier: IVerifier;
-    private jwtVerifier: IJwtVerifier;
 
     /**
      * @description: 
      * @param {ISigner} signer
      * @param {IJwtSigner} jwtSigner
      * @param {IVerifier} verifier
-     * @param {IJwtVerifier} jwtVerifier
      * @return {*}
-     */    
-    constructor(signer: ISigner,jwtSigner: IJwtSigner, verifier: IVerifier, jwtVerifier: IJwtVerifier) {
+     */
+    constructor(signer: ISigner,jwtSigner: IJwtSigner) {
         this.signer = signer;
         this.jwtSigner = jwtSigner;
-        this.verifier = verifier;
-        this.jwtVerifier = jwtVerifier;
-    }
-
-    public verifyInviterBody(body: string, signature: string, hash: string): boolean {
-        if(sha256(signature) != hash) {
-            return false;
-        }
-        return this.verifier.verify(body, signature);   
     }
 
     /**

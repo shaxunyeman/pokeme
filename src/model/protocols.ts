@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:38:28
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-12 13:53:23
+ * @LastEditTime: 2023-01-13 17:11:46
  * @FilePath: /pokeme/src/model/protocols.ts
  * @Description: request and response for inviting
  */
@@ -31,12 +31,17 @@ export enum PokeMessageType {
 }
 
 export type MessageBody = {
+    id: number
+    message: string
+    passphrase?: string  
+    dateTime: string
+}
+
+export type ChatMessage = {
     type: PokeMessageType
     from: string
     to: string
-    message: string
-    dateTime: string
-    passphrase: string  
+    body: [MessageBody]
 }
 
 export enum PokeCommand {

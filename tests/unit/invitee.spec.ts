@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-07 14:07:09
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 18:04:11
+ * @LastEditTime: 2023-01-13 21:22:27
  * @FilePath: /pokeme/tests/unit/invitee.spec.ts
  * @Description: 
  */
@@ -12,13 +12,13 @@ import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/service/impl/j
 import { RSASigner, RSAVerifier } from "@/service/impl/rsaSigner";
 import { RASKeyPair } from "@/unit/rsa";
 import { InviterBody,PokeCommand } from '@/model/protocols'
-import { createInviteRequest } from './units';
-import { RequestDecoder } from "@/service/decodeRequest";
+import { Factory } from './units';
+import { PokeRequestDecoder, PokeRequestValidator } from "@/service/requestTool";
 
 describe('invitee', () => {
     const invitorRAS = RASKeyPair.generate();
     const inviteeRSA = RASKeyPair.generate();
-    const validRequest = createInviteRequest(
+    const InviterFactory = new Factory(
         {
             id: "example@163.com",
             mail: "example@163.com",
@@ -28,17 +28,17 @@ describe('invitee', () => {
         new RSASigner(invitorRAS.privateKey),
         new JsonRSAWebTokenSigner(invitorRAS.privateKey)
     );
+    const validRequest = InviterFactory.newInviteRequest();
 
     it('verify a valid invite request with a correct key', () => {
         const invitee: Invitee = new Invitee(
             new RSASigner(inviteeRSA.privateKey),
-            new JsonRSAWebTokenSigner(inviteeRSA.privateKey),
-            new RSAVerifier(invitorRAS.publicKey),
-            new JsonRSAWebTokenVerifier(invitorRAS.publicKey)
-        );
+            new JsonRSAWebTokenSigner(inviteeRSA.privateKey));
+
+        const pokeRequestValidator: PokeRequestValidator = new PokeRequestValidator(new RSAVerifier(invitorRAS.publicKey));
 
         expect(validRequest.request.command).toEqual(PokeCommand.INVITER);
-        expect(invitee.verifyInviterBody(
+        expect(pokeRequestValidator.verifyBody(
             validRequest.request.body, 
             validRequest.request.signature as string,
             validRequest.hash)).toBeTruthy();
@@ -47,19 +47,17 @@ describe('invitee', () => {
     it('verify a valid invite request with an incorrect key', () => {
         const invitee: Invitee = new Invitee(
             new RSASigner(inviteeRSA.privateKey),
-            new JsonRSAWebTokenSigner(inviteeRSA.privateKey),
-            new RSAVerifier(inviteeRSA.publicKey),   // with an invalid key
-            new JsonRSAWebTokenVerifier(invitorRAS.publicKey)
-        );
-
-        expect(invitee.verifyInviterBody(
+            new JsonRSAWebTokenSigner(inviteeRSA.privateKey));
+        // with an invalid key
+        const pokeRequestValidator: PokeRequestValidator = new PokeRequestValidator(new RSAVerifier(inviteeRSA.publicKey));
+        expect(pokeRequestValidator.verifyBody(
             validRequest.request.body, 
             validRequest.request.signature as string,
             validRequest.hash)).toBeFalsy();
     })
 
     it('decode a valid invite body with a correct key', () => {
-        const decoder: RequestDecoder = new RequestDecoder(new JsonRSAWebTokenVerifier(invitorRAS.publicKey));
+        const decoder: PokeRequestDecoder = new PokeRequestDecoder(new JsonRSAWebTokenVerifier(invitorRAS.publicKey));
         const body: InviterBody = decoder.decode(validRequest.request);
         expect(body.id).toEqual('example@163.com');
         expect(body.mail).toEqual('example@163.com');
@@ -70,7 +68,7 @@ describe('invitee', () => {
         var body: any = null;
         try {
             // with an invalid key
-            const decoder: RequestDecoder = new RequestDecoder(new JsonRSAWebTokenVerifier(inviteeRSA.publicKey));
+            const decoder: PokeRequestDecoder = new PokeRequestDecoder(new JsonRSAWebTokenVerifier(inviteeRSA.publicKey));
             body = decoder.decode(validRequest.request);
         } catch (err: any) {
             ;

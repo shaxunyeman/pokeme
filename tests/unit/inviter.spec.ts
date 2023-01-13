@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 19:36:34
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-12 13:51:54
+ * @LastEditTime: 2023-01-13 18:09:44
  * @FilePath: /pokeme/tests/unit/inviter.spec.ts
  * @Description: 
  */
@@ -12,21 +12,20 @@ import { RSASigner, RSAVerifier } from "@/service/impl/rsaSigner";
 import { RASKeyPair } from "@/unit/rsa";
 import { PokeJwtPayload } from  "@/model/jwtPayload"
 import { PokeCommand } from '@/model/protocols'
-import { createInviteRequest } from './units';
+import { Factory } from './units';
 
 describe('inviter', () => {
     const rsa = RASKeyPair.generate();
     const rsa_2 = RASKeyPair.generate();
-    const validRequest = createInviteRequest(
-        {
-            id: "example@163.com",
-            mail: "example@163.com",
-            publicKey: rsa.publicKey,
-            name: "example"
-        },
-        new RSASigner(rsa.privateKey),
-        new JsonRSAWebTokenSigner(rsa.privateKey)
-    );
+    const factory = new Factory({
+        id: "example@163.com",
+        mail: "example@163.com",
+        publicKey: rsa.publicKey,
+        name: "example"
+    },
+    new RSASigner(rsa.privateKey),
+    new JsonRSAWebTokenSigner(rsa.privateKey));
+    const validRequest = factory.newInviteRequest();
 
     it('Create an invite request', () => {
         expect(validRequest.request.publicKey).toEqual(rsa.publicKey);

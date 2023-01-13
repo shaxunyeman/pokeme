@@ -2,8 +2,8 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-04 23:29:17
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-07 10:13:14
- * @FilePath: /i-free-talk/src/service/rsa.ts
+ * @LastEditTime: 2023-01-13 21:57:54
+ * @FilePath: /pokeme/src/unit/rsa.ts
  * @Description: 
  */
 
@@ -24,5 +24,15 @@ export class RASKeyPair {
                 passphrase: ''
             }
         });
+    }
+}
+
+export class RASAsymmetric {
+    public static cipher(publicKey: string, message: string): string {
+        return crypto.publicEncrypt(publicKey, Buffer.from(message)).toString('hex');
+    }
+
+    public static decipher(privateKey: string, encrypted: string): string {
+        return crypto.privateDecrypt({key: privateKey, passphrase: ''}, Buffer.from(encrypted, 'hex')).toString();
     }
 }
