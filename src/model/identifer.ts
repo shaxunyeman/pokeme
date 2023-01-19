@@ -2,10 +2,12 @@
  * @Author: liuliu
  * @Date: 2023-01-02 12:00:00
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-05 23:50:10
- * @FilePath: /i-free-talk/src/model/identifer.ts
+ * @LastEditTime: 2023-01-19 21:05:09
+ * @FilePath: /pokeme/src/model/identifer.ts
  * @Description: iedentifer for person
  */
+
+import { Account } from "@/service/dac/account"
 
 export interface KeyPair {
     public: string
@@ -13,9 +15,4 @@ export interface KeyPair {
     algorithm: string
 }
 
-export interface Identifer {
-    id: string
-    mail: string
-    publicKey: string
-    name: string
-}
+export type Identifer = Account

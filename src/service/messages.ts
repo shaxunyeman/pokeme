@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 15:03:29
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-13 22:32:23
+ * @LastEditTime: 2023-01-19 23:59:59
  * @FilePath: /pokeme/src/service/messages.ts
  * @Description: 
  */
@@ -31,7 +31,7 @@ export class Messages {
         this.jwt = jwt;
     }
 
-    public singleChat(from: Identifer, to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
+    public singleMessageBody(from: Identifer, to: Account, msgId: number, message: string): {body: MessageBody, hash:string} {
         const asymmetric: RASAsymmetric = new RASAsymmetric();
         const date = new Date();
         const passphrase = Random.passphrase(12);
@@ -40,13 +40,20 @@ export class Messages {
             message: Symmetric.cipher(passphrase, message),
             passphrase: asymmetric.cipher(to.publicKey, passphrase),
             dateTime: date.toUTCString()
+        }; 
+        return {
+            body: body,
+            hash: sha256(JSON.stringify(body))
         };
+    }
 
+    public singleChat(from: Identifer, to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
+        const result = this.singleMessageBody(from, to, msgId, message);
         const chatMsg: ChatMessage = {
             type: PokeMessageType.SINGLE_CHAT,
             from: from.id,
             to: to.id,
-            body: [body]
+            body: [result.body]
         };
 
         const token = this.jwt.sign(chatMsg);

@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 18:10:39
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-13 22:31:45
+ * @LastEditTime: 2023-01-19 21:01:04
  * @FilePath: /pokeme/tests/unit/message.spec.ts
  * @Description: 
  */
@@ -24,7 +24,6 @@ describe('messages', () => {
         mail: 'target@gmail.com',
         name: 'target',
         publicKey: toRSA.publicKey,
-        msgId: 1
     }
     const fatory = new Factory(
         {
@@ -39,7 +38,7 @@ describe('messages', () => {
 
     it('verify a valid message request with a correct key', () => {
         // create a chatmessage
-        const message = fatory.newMessage(toAccount, "This is a message comes from pokeme./n这是来自于 pokeme 的测试消息。");
+        const message = fatory.newMessage(toAccount, 1, "This is a message comes from pokeme./n这是来自于 pokeme 的测试消息。");
 
         const requestDecoder: PokeRequestDecoder = new PokeRequestDecoder(new JsonRSAWebTokenVerifier(fromRAS.publicKey));
         const requestValidator: PokeRequestValidator = new PokeRequestValidator(new RSAVerifier(fromRAS.publicKey));
