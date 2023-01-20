@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-19 15:27:07
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-20 00:30:38
+ * @LastEditTime: 2023-01-20 22:20:27
  * @FilePath: /pokeme/tests/unit/simplePersistent.ts
  * @Description: 
  */
@@ -57,8 +57,8 @@ export class SimpleSendingQueuen implements ISendingQueuen {
         this.requests = new Map<string, any[]>();
     }
 
-    public append(to: string, data: any): PokeErrorCode {
-        // only simulate a case when storaging a data
+    public append(to: Account, data: any): PokeErrorCode {
+        // only simulate a case should be unsuccessful when storaging a data
         if((data as MessageBody)['message'] !== undefined 
             && (data as MessageBody)['id'] !== undefined 
             && (data as MessageBody)['id'] === -1024) {
@@ -66,28 +66,28 @@ export class SimpleSendingQueuen implements ISendingQueuen {
         }
 
         let requests: any;
-        if(this.requests.has(to)) {
-            requests = this.requests.get(to);
+        if(this.requests.has(to.id)) {
+            requests = this.requests.get(to.id);
         } else {
             requests = new Array();
         }
         requests.push(data);
-        this.requests.set(to, requests);
+        this.requests.set(to.id, requests);
         return PokeErrorCode.SUCCESS;
     }
 
-    public retrive(who: string): any[] {
-        if (this.requests.has(who) === false) {
+    public retrive(who: Account): any[] {
+        if (this.requests.has(who.id) === false) {
             return new Array();
         }
 
-        const result = this.requests.get(who) as any[];
-        this.requests.delete(who);
+        const result = this.requests.get(who.id) as any[];
+        this.requests.delete(who.id);
         return result;
     }
 
-    public count(who: string): number {
-        const requests = this.requests.get(who);
+    public count(who: Account): number {
+        const requests = this.requests.get(who.id);
         if(requests === undefined) {
             return 0;
         }

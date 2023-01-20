@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 15:03:29
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-19 23:59:59
+ * @LastEditTime: 2023-01-20 10:48:48
  * @FilePath: /pokeme/src/service/messages.ts
  * @Description: 
  */
@@ -31,7 +31,7 @@ export class Messages {
         this.jwt = jwt;
     }
 
-    public singleMessageBody(from: Identifer, to: Account, msgId: number, message: string): {body: MessageBody, hash:string} {
+    public singleMessageBody(to: Account, msgId: number, message: string): {body: MessageBody, hash:string} {
         const asymmetric: RASAsymmetric = new RASAsymmetric();
         const date = new Date();
         const passphrase = Random.passphrase(12);
@@ -47,15 +47,7 @@ export class Messages {
         };
     }
 
-    public singleChat(from: Identifer, to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
-        const result = this.singleMessageBody(from, to, msgId, message);
-        const chatMsg: ChatMessage = {
-            type: PokeMessageType.SINGLE_CHAT,
-            from: from.id,
-            to: to.id,
-            body: [result.body]
-        };
-
+    public assembleSingleChat(from: Account,chatMsg: ChatMessage): {request: PokeRequest, hash: string} {
         const token = this.jwt.sign(chatMsg);
         const signature = this.signer.sign(token);
         const hash = sha256(signature);
@@ -70,6 +62,21 @@ export class Messages {
         return {
             request: request,
             hash: hash
-        };
+        }; 
+    }
+
+    private chatMessage(from: Account, to: Account ,body: MessageBody): ChatMessage {
+        return {
+            type: PokeMessageType.SINGLE_CHAT,
+            from: from.id,
+            to: to.id,
+            body: [body]
+        }
+    }
+
+    public singleChat(from: Identifer, to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
+        const result = this.singleMessageBody(to, msgId, message);
+        const chatMsg: ChatMessage = this.chatMessage(from, to, result.body);
+        return this.assembleSingleChat(from, chatMsg);
     }
 }

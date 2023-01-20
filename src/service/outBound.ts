@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 12:58:19
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-19 23:56:35
+ * @LastEditTime: 2023-01-20 22:51:52
  * @FilePath: /pokeme/src/service/outBound.ts
  * @Description: 
  */
@@ -16,7 +16,7 @@ import { IPersistent } from "@/service/dac/persistent"
 import { ITransporter } from "@/service/transporter";
 import { Identifer } from "@/model/identifer";
 import { PokeErrorCode } from "@/model/errorCodes";
-import { MessageBody, PokeRequest } from "@/model/protocols";
+import { MessageBody, ChatMessage, PokeRequest, PokeMessageType } from "@/model/protocols";
 import { Account } from "@/service/dac/account";
 
 export class Outbound {
@@ -43,7 +43,11 @@ export class Outbound {
         this.stopped = false;
     }
 
-    public start() {
+    /**
+     * @description: start a timer for sending requests in interval
+     * @return {*}
+     */    
+    public start(): void {
         this.timerId = setInterval(() => {
             if(this.stopped) {
                 clearInterval(this.timerId);
@@ -53,7 +57,11 @@ export class Outbound {
         }, 1000);
     }
 
-    public stop() {
+    /**
+     * @description: stop a started timer
+     * @return {*}
+     */    
+    public stop(): void {
         this.stopped = true;
     }
 
@@ -63,7 +71,7 @@ export class Outbound {
      * @param {string} message
      * @return {*} return a `PokeErrorCode`
      */
-    public sendChatMessage(to: string, msgId:number, message: string): { code: PokeErrorCode, hash: string } {
+    public sendChatMessage(to: Account, msgId:number, message: string): { code: PokeErrorCode, hash: string } {
         if(this.stopped) {
             return {
                 code: PokeErrorCode.SYSTEM_STOPPED,
@@ -71,7 +79,7 @@ export class Outbound {
             };
         }
 
-        const toAccount = this.persistent.getAccount().get(to);
+        const toAccount = this.persistent.getAccount().get(to.id);
         if (toAccount === undefined) {
             return {
                 code: PokeErrorCode.ACCOUNT_NOT_EXIST,
@@ -81,12 +89,12 @@ export class Outbound {
 
         const chatMessage: Messages = new Messages(this.signer, this.jwtSigner);
         let result: any;
-        result = chatMessage.singleMessageBody(this.id, toAccount, msgId, message);
+        result = chatMessage.singleMessageBody(toAccount, msgId, message);
         if(this.persistentRequest(to, result.body) !== PokeErrorCode.SUCCESS) {
-            console.error("append a chat message was unsuccessful. from: %s, to: %s, hash: %s", this.id.id, to, result.hash);
+            console.warn("append a chat message was unsuccessful. from: %s, to: %s, hash: %s", this.id.id, to.id, result.hash);
             console.warn("sending a chat message directorly.");
             result = chatMessage.singleChat(this.id, toAccount, msgId, message);
-            this.transporter.send(result.request);
+            this.transporter.send(to, result.request);
         }
 
         return {
@@ -115,7 +123,7 @@ export class Outbound {
      * @param {string} description
      * @return {*} if successful returns a hash of the request, otherwise returns `undefined`
      */    
-    public sendInvite(to: string, description: string | undefined): { code: PokeErrorCode, hash: string } {
+    public sendInvite(to: Account, description: string | undefined): { code: PokeErrorCode, hash: string } {
 
         if(this.stopped) {
             return {
@@ -128,9 +136,9 @@ export class Outbound {
         const result = inviter.invite(this.id, description);
 
         if(this.persistentRequest(to, result.request) !== PokeErrorCode.SUCCESS) {
-            console.error("append an invite was unsuccessful. from: %s, to: %s, hash: %s", this.id.id, to, result.hash);
+            console.warn("append an invite was unsuccessful. from: %s, to: %s, hash: %s", this.id.id, to.id, result.hash);
             console.warn("sending an invite directorly.");
-            this.transporter.send(result.request);
+            this.transporter.send(to, result.request);
         }
 
         return {
@@ -146,7 +154,7 @@ export class Outbound {
      * @param {string} description
      * @return {*}
      */    
-    public sendInvitee(to: string, allow: boolean, description?: string): { code: PokeErrorCode, hash: string } {
+    public sendInvitee(to: Account, allow: boolean, description?: string): { code: PokeErrorCode, hash: string } {
         if(this.stopped) {
             return {
                 code: PokeErrorCode.SYSTEM_STOPPED,
@@ -163,9 +171,9 @@ export class Outbound {
         }
 
         if(this.persistentRequest(to, result.request) !== PokeErrorCode.SUCCESS) {
-            console.error("append an invitee was unsuccessful. from: %s, to: %s, hash: %s", this.id.id, to, result.hash);
+            console.warn("append an invitee was unsuccessful. from: %s, to: %s, hash: %s", this.id.id, to.id, result.hash);
             console.warn("sending an invitee directorly.");
-            this.transporter.send(result.request);
+            this.transporter.send(to, result.request);
         }
 
         return {
@@ -174,7 +182,7 @@ export class Outbound {
         };
     }
 
-    private persistentRequest(to: string, request: PokeRequest | MessageBody): PokeErrorCode {
+    private persistentRequest(to: Account, request: PokeRequest | MessageBody): PokeErrorCode {
         const sending =  this.persistent.getSendingQueuen();
         return sending.append(to, request);
     }
@@ -183,11 +191,44 @@ export class Outbound {
         const accountTable = this.persistent.getAccount();
         const sending = this.persistent.getSendingQueuen();
         const accounts = accountTable.getAll();
-        accounts.forEach((value: Account, _index: number) => {
-            const msgs = sending.retrive(value.id);
-            msgs.forEach((item, _index) => {
-                this.transporter.send(item.request);
-            })
+        accounts.forEach((account: Account, _index: number) => {
+            const msgs = sending.retrive(account);
+            if(msgs.length > 0) {
+                this.transportMessages(account, msgs);
+            }
         });
+    }
+
+    private transportMessages(to: Account, msgs: any[]) {
+        let messageBodys: MessageBody[] = new Array();
+
+        msgs.forEach((msg,_index) => {
+            if((msg as MessageBody)['message'] !== undefined) {
+                // chatMessage should assemble body
+                messageBodys.push(msg)
+            } else if ((msg as PokeRequest)['command'] !== undefined) {
+                // invite and invitee request can send directly
+                this.transporter.send(to, msg);
+            }
+        })
+
+        if(messageBodys.length === 0) {
+            return;
+        }
+
+        let chatMessage: ChatMessage = {
+            type: PokeMessageType.SINGLE_CHAT,
+            from: this.id.id,
+            to: to.id,
+            body: []
+        };
+
+        messageBodys.forEach((msg: MessageBody, _index: number) => {
+            chatMessage.body.push(msg);
+        })
+
+        const messages: Messages = new Messages(this.signer, this.jwtSigner);
+        const result = messages.assembleSingleChat(this.id, chatMessage);
+        this.transporter.send(to, result.request);
     }
 }
