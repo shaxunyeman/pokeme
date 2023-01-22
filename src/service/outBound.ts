@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 12:58:19
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-20 22:51:52
+ * @LastEditTime: 2023-01-21 14:01:29
  * @FilePath: /pokeme/src/service/outBound.ts
  * @Description: 
  */
@@ -12,7 +12,7 @@ import { IJwtSigner } from "@/service/jwt";
 import { Inviter } from "@/service/inviter";
 import { Invitee } from "@/service/invitee";
 import { Messages } from "@/service/messages";
-import { IPersistent } from "@/service/dac/persistent"
+import { IPersistent } from "@/service/dac/persistent";
 import { ITransporter } from "@/service/transporter";
 import { Identifer } from "@/model/identifer";
 import { PokeErrorCode } from "@/model/errorCodes";

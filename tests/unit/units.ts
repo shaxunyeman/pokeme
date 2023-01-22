@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-07 14:09:04
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-20 00:44:30
+ * @LastEditTime: 2023-01-21 15:38:53
  * @FilePath: /pokeme/tests/unit/units.ts
  * @Description: 
  */
@@ -11,13 +11,16 @@ import { Identifer } from "@/model/identifer";
 import { PokeRequest } from '@/model/protocols';
 import { Inviter } from "@/service/inviter";
 import { ISigner } from "@/service/signer";
-import { IJwtSigner } from '@/service/jwt';
+import { IJwtSigner, IJwtVerifier } from '@/service/jwt';
+import { IReceiver } from "@/service/receiver";
 import { Account } from "@/service/dac/account";
 import { Messages } from "@/service/messages";
 import { Outbound } from "@/service/outBound";
+import { Inbound } from "@/service/inBound";
 import { IPersistent } from "@/service/dac/persistent"
 import { ITransporter } from "@/service/transporter";
 import { RASKeyPair,  } from "@/unit/rsa";
+import { Invitee } from "@/service/invitee";
 
 export class TestAccount {
     public static generateAccount(name:string): {account: Account, key:{publicKey:string, privateKey: string}} {
@@ -73,6 +76,15 @@ export class Factory {
         return inviter.invite(this.id, "an example request"); 
     }
 
+    public newInviteeRequest(to: Account, allow: boolean): {request: PokeRequest, hash: string} {
+        const invitee: Invitee = new Invitee(this.signer, this.jwtSigner);
+        if(allow) {
+            return invitee.allow(to, 'allow invite');
+        } else {
+            return invitee.refuse(to, 'refuse invite')
+        }
+    }
+
     public newMessage(to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
         const messages: Messages = new Messages(this.signer, this.jwtSigner);
         return messages.singleChat(this.id, to, msgId, message);
@@ -80,6 +92,10 @@ export class Factory {
 
     public newOutbound(transporter: ITransporter, persistent: IPersistent): Outbound {
         return new Outbound(this.id, this.signer, this.jwtSigner, transporter, persistent);
+    }
+
+    public newInbound(jwtVerifier: IJwtVerifier, receiver: IReceiver, persistent: IPersistent): Inbound {
+        return new Inbound(jwtVerifier, receiver, persistent);
     }
 }
 
