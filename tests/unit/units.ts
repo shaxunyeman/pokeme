@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-07 14:09:04
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-21 15:38:53
+ * @LastEditTime: 2023-01-22 19:01:46
  * @FilePath: /pokeme/tests/unit/units.ts
  * @Description: 
  */
@@ -23,11 +23,14 @@ import { RASKeyPair,  } from "@/unit/rsa";
 import { Invitee } from "@/service/invitee";
 
 export class TestAccount {
-    public static generateAccount(name:string): {account: Account, key:{publicKey:string, privateKey: string}} {
+    public static generateAccount(name:string, domain?: string): {account: Account, key:{publicKey:string, privateKey: string}} {
         const rasKey = RASKeyPair.generate();
+        if(domain === undefined) {
+            domain = 'pokeme.com';
+        }
         const account: Account = {
-            id: `${name}@pokeme.com`,
-            mail: `${name}@pokeme.com`,
+            id: `${name}@${domain}`,
+            mail: `${name}@${domain}`,
             publicKey: rasKey.publicKey,
             name: name
         };
@@ -41,11 +44,14 @@ export class TestAccount {
         }
     }
 
-    public static generateId(name: string): {id: Identifer, key:{publicKey:string, privateKey: string}} {
+    public static generateId(name: string, domain?: string): {id: Identifer, key:{publicKey:string, privateKey: string}} {
         const rasKey = RASKeyPair.generate();
+        if(domain === undefined) {
+            domain = 'pokeme.com';
+        }
         const id: Identifer = {
-            id: `${name}@pokeme.com`,
-            mail: `${name}@pokeme.com`,
+            id: `${name}@${domain}`,
+            mail: `${name}@${domain}`,
             publicKey: rasKey.publicKey,
             name: name
         };

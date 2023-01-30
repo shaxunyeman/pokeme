@@ -2,7 +2,7 @@
  * @Author: liuliu
  * @Date: 2023-01-02 12:00:00
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-19 21:05:09
+ * @LastEditTime: 2023-01-22 18:27:55
  * @FilePath: /pokeme/src/model/identifer.ts
  * @Description: iedentifer for person
  */

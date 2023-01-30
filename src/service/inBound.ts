@@ -2,12 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-21 12:41:10
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-22 14:03:55
+ * @LastEditTime: 2023-01-30 15:43:24
  * @FilePath: /pokeme/src/service/inBound.ts
  * @Description: 
  */
 
-import PubSub from 'pubsub-js'
+import PubSub from 'pubsub-js';
 import { IReceiver } from '@/service/receiver';
 import { IPersistent } from "@/service/dac/persistent";
 import { Account } from '@/service/dac/account';
