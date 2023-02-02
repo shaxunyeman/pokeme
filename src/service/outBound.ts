@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 12:58:19
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-21 14:01:29
+ * @LastEditTime: 2023-02-02 15:08:42
  * @FilePath: /pokeme/src/service/outBound.ts
  * @Description: 
  */
@@ -17,7 +17,7 @@ import { ITransporter } from "@/service/transporter";
 import { Identifer } from "@/model/identifer";
 import { PokeErrorCode } from "@/model/errorCodes";
 import { MessageBody, ChatMessage, PokeRequest, PokeMessageType } from "@/model/protocols";
-import { Account } from "@/service/dac/account";
+import { Account } from "@/model/account";
 
 export class Outbound {
     private id: Identifer;
@@ -79,7 +79,7 @@ export class Outbound {
             };
         }
 
-        const toAccount = this.persistent.getAccount().get(to.id);
+        const toAccount = this.persistent.getIAccount().get(to.id);
         if (toAccount === undefined) {
             return {
                 code: PokeErrorCode.ACCOUNT_NOT_EXIST,
@@ -183,13 +183,13 @@ export class Outbound {
     }
 
     private persistentRequest(to: Account, request: PokeRequest | MessageBody): PokeErrorCode {
-        const sending =  this.persistent.getSendingQueuen();
+        const sending =  this.persistent.getISendingQueuen();
         return sending.append(to, request);
     }
 
     private transportRequest() {
-        const accountTable = this.persistent.getAccount();
-        const sending = this.persistent.getSendingQueuen();
+        const accountTable = this.persistent.getIAccount();
+        const sending = this.persistent.getISendingQueuen();
         const accounts = accountTable.getAll();
         accounts.forEach((account: Account, _index: number) => {
             const msgs = sending.retrive(account);

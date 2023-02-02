@@ -2,18 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-22 18:03:43
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-22 20:03:25
- * @FilePath: /pokeme/src/data/imapConfig.ts
+ * @LastEditTime: 2023-01-31 11:31:53
+ * @FilePath: /pokeme/src/data/imapConfigData.ts
  * @Description: 
  */
 
-export interface ImapEndpoint {
-    host: string
-    port: number
-    tls: boolean
-}
-
-type ImapConfig = Record<string, ImapEndpoint>;
+import { ImapEndpoint, ImapConfig } from "@/model/imapConfig"
 
 export const ImapDefualtConfig: ImapConfig = {
     "peersafe.cn": {

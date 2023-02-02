@@ -9,7 +9,7 @@
 
 import { PokeErrorCode } from "@/model/errorCodes";
 import { PokeRequest } from "@/model/protocols";
-import { Account } from "@/service/dac/account";
+import { Account } from "@/model/account";
 
 export interface ISendingQueuen {
     append(to: Account, data: any): PokeErrorCode 

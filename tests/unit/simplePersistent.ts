@@ -2,14 +2,18 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-19 15:27:07
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-20 22:20:27
+ * @LastEditTime: 2023-02-02 15:16:11
  * @FilePath: /pokeme/tests/unit/simplePersistent.ts
  * @Description: 
  */
 
 import { IPersistent } from "@/service/dac/persistent";
-import { Account, IAccount } from '@/service/dac/account';
+import { IAccount } from '@/service/dac/account';
 import { ISendingQueuen } from '@/service/dac/sendingQueue';
+import { IImapBoxInfo } from "@/service/dac/imapboxinfo";
+import { IPokeMessage } from '@/service/dac/message';
+import { Account } from "@/model/account";
+import { ImapBoxInfo } from "@/model/accountImapInfo";
 import { PokeErrorCode } from "@/model/errorCodes";
 import { PokeRequest, PokeCommand, MessageBody } from "@/model/protocols";
 
@@ -95,20 +99,106 @@ export class SimpleSendingQueuen implements ISendingQueuen {
     }
 }
 
+export class SimpleImapInfo implements IImapBoxInfo {
+    private boxinfos: Map<string, Map<string, ImapBoxInfo>>;
+
+    constructor() {
+        this.boxinfos = new Map<string, Map<string, ImapBoxInfo>>();
+    }
+
+    public save(who: Account, boxinfo: ImapBoxInfo): boolean {
+        let boxinfos = this.boxinfos.get(who.mail);
+        if(boxinfos === undefined) {
+            boxinfos = new Map<string, ImapBoxInfo>();
+        } 
+        boxinfos.set(boxinfo.name, boxinfo);
+        this.boxinfos.set(who.mail, boxinfos);
+        return true;
+    }
+
+    public update(who: Account, boxinfo: ImapBoxInfo): boolean {
+        const infos = this.boxinfos.get(who.mail);
+        if(infos === undefined) {
+            return false;
+        }
+
+        const info = infos.get(boxinfo.name);
+        if(info === undefined) {
+            return false;
+        }
+        infos.set(boxinfo.name, boxinfo);
+        this.boxinfos.set(who.mail, infos);
+        return true;
+    }
+
+    public get(who: Account, boxname: string): ImapBoxInfo | undefined {
+        const infos = this.boxinfos.get(who.mail);
+        if(infos === undefined) {
+            return undefined;
+        }
+
+        const info = infos.get(boxname);
+        if(info === undefined) {
+            return undefined;
+        }
+        return info;
+    }
+
+    public getAll(who: Account): ImapBoxInfo[] {
+        const infos = this.boxinfos.get(who.mail);
+        if(infos === undefined) {
+            return new Array();
+        }
+
+        let boxes = new Array();
+        infos.forEach((box, _key) => {
+            boxes.push(box);
+        })
+        return boxes;
+    }
+
+    public lastUpdateTime(): string {
+        const date = new Date();
+        return date.toDateString();
+    }
+}
+
+export class SimplePokeMessage implements IPokeMessage {
+    public storage(from: Account, data:any): boolean {
+        return false;
+    }
+
+    public retrive(who: Account): any[] {
+        return new Array();
+    }
+}
+
 export class SimplePersistent implements IPersistent {
     private simpleAccount: SimpleAccount;
     private simpleSendingQueuen: SimpleSendingQueuen;
+    private simpleImapInfo: SimpleImapInfo;
+    private simplePokeMessage: SimplePokeMessage;
 
     constructor() {
         this.simpleAccount = new SimpleAccount();
         this.simpleSendingQueuen = new SimpleSendingQueuen();
+        this.simpleImapInfo = new SimpleImapInfo();
+        this.simplePokeMessage = new SimplePokeMessage();
     }
 
-    public getAccount(): IAccount {
+    public getIAccount(): IAccount {
         return this.simpleAccount;
     }
 
-    public getSendingQueuen(): ISendingQueuen {
+    public getISendingQueuen(): ISendingQueuen {
         return this.simpleSendingQueuen;
+    }
+
+    public getIImapBoxinfo(): IImapBoxInfo {
+        return this.simpleImapInfo;
+    }
+
+    public getIPokeMessage(): IPokeMessage {
+        return this.simplePokeMessage;
     }
 }

@@ -2,14 +2,14 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-21 15:24:00
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-22 10:50:55
+ * @LastEditTime: 2023-02-02 15:07:05
  * @FilePath: /pokeme/tests/unit/inbound.spec.ts
  * @Description: 
  */
 
 import { Factory, sleep, TestAccount } from "./units";
 import { IReceiver } from "@/service/receiver";
-import { Account } from "@/service/dac/account";
+import { Account } from "@/model/account";
 import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/service/impl/jsonRSAWebToken";
 import { RSASigner } from "@/service/impl/rsaSigner";
 import { SimplePersistent } from "./simplePersistent";
@@ -39,7 +39,7 @@ describe('inbound test', () => {
     })
 
     beforeEach(()=> {
-        const accountTable = persistent.getAccount();
+        const accountTable = persistent.getIAccount();
         accountTable.append(TestAccount.generateAccount('testA').account);
         accountTable.append(TestAccount.generateAccount('testB').account);
     })

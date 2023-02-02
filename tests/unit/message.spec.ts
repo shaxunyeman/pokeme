@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 18:10:39
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-19 21:01:04
+ * @LastEditTime: 2023-01-31 10:39:28
  * @FilePath: /pokeme/tests/unit/message.spec.ts
  * @Description: 
  */
@@ -10,7 +10,7 @@
 import { JsonRSAWebTokenSigner, JsonRSAWebTokenVerifier } from "@/service/impl/jsonRSAWebToken";
 import { RSASigner, RSAVerifier, RASAsymmetric } from "@/service/impl/rsaSigner";
 import { PokeRequestDecoder, PokeRequestValidator } from "@/service/requestTool";
-import { Account } from "@/service/dac/account";
+import { Account } from "@/model/account";
 import { ChatMessage, PokeMessageType, MessageBody } from '@/model/protocols'
 import { RASKeyPair,  } from "@/unit/rsa";
 import { Symmetric } from "@/unit/crypto"

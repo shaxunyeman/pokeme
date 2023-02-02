@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-21 12:41:10
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-30 15:43:24
+ * @LastEditTime: 2023-02-02 15:07:48
  * @FilePath: /pokeme/src/service/inBound.ts
  * @Description: 
  */
@@ -10,12 +10,12 @@
 import PubSub from 'pubsub-js';
 import { IReceiver } from '@/service/receiver';
 import { IPersistent } from "@/service/dac/persistent";
-import { Account } from '@/service/dac/account';
+import { Account } from "@/model/account";
 import { IJwtVerifier } from '@/service/jwt';
 import { PokeRequest, InviterBody, InviteeBody, ChatMessage, PokeMessageType } from '@/model/protocols';
 import { PokeRequestDecoder } from "@/service/requestTool";
 
-export type SubscriptionListener<T> = (message: string, data?: T) => void;
+type SubscriptionListener<T> = (message: string, data?: T) => void;
 
 export enum InboundEventType {
     INVITER = 'inviter',
@@ -82,7 +82,7 @@ export class Inbound {
     }
 
     private receiveRoutine() {
-        const accountTable = this.persistent.getAccount();
+        const accountTable = this.persistent.getIAccount();
         const accounts = accountTable.getAll();
         accounts.forEach((account: Account, _index: number) => {
             const msgs = this.receiver.receive(account);

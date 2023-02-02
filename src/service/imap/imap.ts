@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-22 17:55:08
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-30 16:07:22
+ * @LastEditTime: 2023-02-01 16:34:00
  * @FilePath: /pokeme/src/service/imap/imap.ts
  * @Description: 
  */
@@ -10,7 +10,7 @@
 import Imap from 'imap';
 import mailparser from 'mailparser';
 import PubSub from 'pubsub-js';
-import { ImapEndpoint } from '@/data/imapConfig';
+import { ImapEndpoint } from '@/model/imapConfig';
 import { Identifer } from '@/model/identifer';
 import { ISensitivity } from '@/service/sensitivity';
 
@@ -24,6 +24,8 @@ export enum PokeImapConnectEvent {
     DISCONNECTED = 'close',
     // end() - Emitted when the connection has ended.
     END = 'end',
+    // mail(< integer >numNewMsgs) - Emitted when new mail arrives in the currently open mailbox
+    NEWMAIL = 'mail',
     // data(<PokeEnvelope>pokeEnvelope) - Emitted when an envelope has been received
     DATA = 'data'
 }
@@ -37,17 +39,12 @@ export interface PokeEnvelope {
     data?: any
 }
 
-export type SubscriptionListener<T> = (message: string, data?: T) => void;
+type SubscriptionListener<T> = (message: string, data?: T) => void;
 
 export class PokeImap {
     private imap: Imap;
-    private uidNext: number;
-    private openedBox?: Imap.Box;
 
     constructor(id: Identifer, sensitivity: ISensitivity, endpoint: ImapEndpoint) {
-        this.uidNext = 0xFFFFFFFF;
-        this.openedBox = undefined;
-        
         const keepAlive: Imap.KeepAlive = {
             interval: 10000,
             idleInterval: 300000,
@@ -68,32 +65,6 @@ export class PokeImap {
     }
 
     public connect(): void {
-        this.imap.on('mail', (numNew: number) => {
-            // mail(< integer >numNewMsgs) - Emitted when new mail arrives in the currently open mailbox
-            if(this.uidNext === 0xFFFFFFFF) {
-                return;
-            }
-
-            if(this.openedBox === undefined) {
-                return;
-            }
-
-            if(numNew === this.openedBox.messages.total) {
-                return;
-            }
-
-            console.info(numNew, "new emails have arrived. uidnext: ", this.uidNext);
-            let uids: number[] = new Array();
-            for(let i = 0; i < numNew; i++) {
-                uids.push(this.uidNext + i);
-            }
-            this.uidNext += numNew;
-
-            uids.forEach((uid: number, _index: number) => {
-                this.fetch(uid);
-            })
-        });
-
         this.imap.on('alert', (alter: string) => {
            // (< string >message) - Emitted when the server issues an alert 
            // (e.g. "the server is going down for maintenance"). 
@@ -123,12 +94,14 @@ export class PokeImap {
     public subscribe(event: PokeImapConnectEvent, listener: Function | SubscriptionListener<any>) {
         if(event === PokeImapConnectEvent.DATA) {
             PubSub.subscribe(event, listener as SubscriptionListener<any>);
+        } else if (event === PokeImapConnectEvent.NEWMAIL) {
+            this.imap.on(event, listener as Function);
         } else {
             this.imap.once(event, listener as Function);
         }
     }
 
-    public async listBoxs(): Promise<string[]> {
+    public async listBoxes(): Promise<string[]> {
         return new Promise((resolve, reject) => {
             this.imap.getBoxes((error, mailBoxes) => {
                 if (error !== undefined) {
@@ -156,8 +129,6 @@ export class PokeImap {
                 if(error !== undefined) {
                     reject(error);
                 } else {
-                    this.openedBox = box;
-                    this.uidNext = box.uidnext;
                     resolver(box);
                 }
             });

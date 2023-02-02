@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 15:03:29
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-20 10:48:48
+ * @LastEditTime: 2023-01-31 10:37:25
  * @FilePath: /pokeme/src/service/messages.ts
  * @Description: 
  */
@@ -18,7 +18,7 @@ import { Random } from "@/unit/random";
 import { Symmetric, sha256 } from '@/unit/crypto';
 import { ISigner } from "@/service/signer";
 import { IJwtSigner } from "@/service/jwt"
-import { Account } from "@/service/dac/account";
+import { Account } from "@/model/account";
 import { RASAsymmetric } from "@/service/impl/rsaSigner"
 import { Identifer } from "@/model/identifer";
 

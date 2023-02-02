@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-07 14:09:04
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-22 19:01:46
+ * @LastEditTime: 2023-01-31 16:50:11
  * @FilePath: /pokeme/tests/unit/units.ts
  * @Description: 
  */
@@ -13,12 +13,13 @@ import { Inviter } from "@/service/inviter";
 import { ISigner } from "@/service/signer";
 import { IJwtSigner, IJwtVerifier } from '@/service/jwt';
 import { IReceiver } from "@/service/receiver";
-import { Account } from "@/service/dac/account";
+import { Account } from "@/model/account";
 import { Messages } from "@/service/messages";
 import { Outbound } from "@/service/outBound";
 import { Inbound } from "@/service/inBound";
 import { IPersistent } from "@/service/dac/persistent"
 import { ITransporter } from "@/service/transporter";
+import { ISensitivity } from "@/service/sensitivity";
 import { RASKeyPair,  } from "@/unit/rsa";
 import { Invitee } from "@/service/invitee";
 
@@ -106,3 +107,10 @@ export class Factory {
 }
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+
+export class TestSensitivity implements ISensitivity {
+    public password(who: Account): string {
+        return process.env.POKEMEIMAPAUTHCODE as string;
+    }
+}
