@@ -2,13 +2,13 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-31 16:46:00
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-02 14:48:22
+ * @LastEditTime: 2023-02-02 17:14:31
  * @FilePath: /pokeme/tests/unit/receiverWithImap.spec.ts
  * @Description: 
  */
 
 import { ReceiverWithImap } from '@/service/impl/receiverWithImap';
-import { ImapDefualtConfig } from "@/data/imapConfigData";
+import { ImapDefualtConfig } from "@/data/mailConfigData";
 import { TestAccount, TestSensitivity } from "./units";
 import { SimplePersistent, SimpleImapInfo } from "./simplePersistent";
 import { sleep } from './units';

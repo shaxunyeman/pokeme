@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 12:58:19
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-02 15:08:42
+ * @LastEditTime: 2023-02-03 15:00:21
  * @FilePath: /pokeme/src/service/outBound.ts
  * @Description: 
  */
@@ -18,6 +18,7 @@ import { Identifer } from "@/model/identifer";
 import { PokeErrorCode } from "@/model/errorCodes";
 import { MessageBody, ChatMessage, PokeRequest, PokeMessageType } from "@/model/protocols";
 import { Account } from "@/model/account";
+import { SentStatus } from "@/service/dac/sendingQueue";
 
 export class Outbound {
     private id: Identifer;
@@ -71,7 +72,7 @@ export class Outbound {
      * @param {string} message
      * @return {*} return a `PokeErrorCode`
      */
-    public sendChatMessage(to: Account, msgId:number, message: string): { code: PokeErrorCode, hash: string } {
+    public sendChatMessage(to: Account, msgId: string, message: string): { code: PokeErrorCode, hash: string } {
         if(this.stopped) {
             return {
                 code: PokeErrorCode.SYSTEM_STOPPED,
@@ -184,7 +185,7 @@ export class Outbound {
 
     private persistentRequest(to: Account, request: PokeRequest | MessageBody): PokeErrorCode {
         const sending =  this.persistent.getISendingQueuen();
-        return sending.append(to, request);
+        return sending.append(to, request.id, request);
     }
 
     private transportRequest() {
@@ -194,25 +195,33 @@ export class Outbound {
         accounts.forEach((account: Account, _index: number) => {
             const msgs = sending.retrive(account);
             if(msgs.length > 0) {
-                this.transportMessages(account, msgs);
+               this.transportMessages(account, msgs);
             }
         });
     }
 
     private transportMessages(to: Account, msgs: any[]) {
-        let messageBodys: MessageBody[] = new Array();
+        let messageBodys: any[] = new Array();
 
-        msgs.forEach((msg,_index) => {
-            if((msg as MessageBody)['message'] !== undefined) {
+        msgs.forEach((msg, _index) => {
+            if ((msg.data as MessageBody)['message'] !== undefined) {
                 // chatMessage should assemble body
-                messageBodys.push(msg)
-            } else if ((msg as PokeRequest)['command'] !== undefined) {
+                messageBodys.push(msg);
+            } else if ((msg.data as PokeRequest)['command'] !== undefined) {
                 // invite and invitee request can send directly
-                this.transporter.send(to, msg);
+                this.transporter.send(to, msg).then((result) => {
+                    const sendingDB = this.persistent.getISendingQueuen();
+                    if (result) {
+                        // sent successfuly
+                        sendingDB.feedBack(msg.id, SentStatus.SENTOK);
+                    } else {
+                        sendingDB.feedBack(msg.id, SentStatus.SENTFAULT);
+                    }
+                });
             }
         })
 
-        if(messageBodys.length === 0) {
+        if (messageBodys.length === 0) {
             return;
         }
 
@@ -223,12 +232,21 @@ export class Outbound {
             body: []
         };
 
-        messageBodys.forEach((msg: MessageBody, _index: number) => {
-            chatMessage.body.push(msg);
-        })
+        messageBodys.forEach((msg, _index) => {
+            chatMessage.body.push(msg.data);
+        });
 
         const messages: Messages = new Messages(this.signer, this.jwtSigner);
         const result = messages.assembleSingleChat(this.id, chatMessage);
-        this.transporter.send(to, result.request);
+        this.transporter.send(to, result.request).then((result) => {
+            messageBodys.forEach((msg, _index) => {
+                const sendingDB = this.persistent.getISendingQueuen();
+                if(result) {
+                    sendingDB.feedBack(msg.id, SentStatus.SENTOK);
+                } else {
+                    sendingDB.feedBack(msg.id, SentStatus.SENTFAULT);
+                }
+            });
+        });
     }
 }

@@ -2,11 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-13 15:03:29
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-31 10:37:25
+ * @LastEditTime: 2023-02-03 14:45:53
  * @FilePath: /pokeme/src/service/messages.ts
  * @Description: 
  */
 
+import { v4 as uuidv4 } from 'uuid';
 import { 
     PokeRequest, 
     MessageBody,
@@ -31,7 +32,7 @@ export class Messages {
         this.jwt = jwt;
     }
 
-    public singleMessageBody(to: Account, msgId: number, message: string): {body: MessageBody, hash:string} {
+    public singleMessageBody(to: Account, msgId: string, message: string): {body: MessageBody, hash:string} {
         const asymmetric: RASAsymmetric = new RASAsymmetric();
         const date = new Date();
         const passphrase = Random.passphrase(12);
@@ -53,6 +54,7 @@ export class Messages {
         const hash = sha256(signature);
 
         const request: PokeRequest = {
+            id: uuidv4(),
             command: PokeCommand.MESSAGE,
             body: token,
             publicKey: from.publicKey,
@@ -74,7 +76,7 @@ export class Messages {
         }
     }
 
-    public singleChat(from: Identifer, to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
+    public singleChat(from: Identifer, to: Account, msgId: string, message: string): {request: PokeRequest, hash: string} {
         const result = this.singleMessageBody(to, msgId, message);
         const chatMsg: ChatMessage = this.chatMessage(from, to, result.body);
         return this.assembleSingleChat(from, chatMsg);

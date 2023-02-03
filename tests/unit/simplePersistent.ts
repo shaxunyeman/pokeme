@@ -2,14 +2,14 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-19 15:27:07
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-02 15:16:11
+ * @LastEditTime: 2023-02-03 14:41:03
  * @FilePath: /pokeme/tests/unit/simplePersistent.ts
  * @Description: 
  */
 
 import { IPersistent } from "@/service/dac/persistent";
 import { IAccount } from '@/service/dac/account';
-import { ISendingQueuen } from '@/service/dac/sendingQueue';
+import { ISendingQueuen, SentStatus } from '@/service/dac/sendingQueue';
 import { IImapBoxInfo } from "@/service/dac/imapboxinfo";
 import { IPokeMessage } from '@/service/dac/message';
 import { Account } from "@/model/account";
@@ -61,11 +61,11 @@ export class SimpleSendingQueuen implements ISendingQueuen {
         this.requests = new Map<string, any[]>();
     }
 
-    public append(to: Account, data: any): PokeErrorCode {
+    public append(to: Account, id: string, data: any): PokeErrorCode {
         // only simulate a case should be unsuccessful when storaging a data
         if((data as MessageBody)['message'] !== undefined 
             && (data as MessageBody)['id'] !== undefined 
-            && (data as MessageBody)['id'] === -1024) {
+            && (data as MessageBody)['id'] === '-1024') {
             return PokeErrorCode.STORAGE_ERROR;
         }
 
@@ -75,12 +75,12 @@ export class SimpleSendingQueuen implements ISendingQueuen {
         } else {
             requests = new Array();
         }
-        requests.push(data);
+        requests.push({id: id, data: data});
         this.requests.set(to.id, requests);
         return PokeErrorCode.SUCCESS;
     }
 
-    public retrive(who: Account): any[] {
+    public retrive(who: Account): {id:string,data:any}[] {
         if (this.requests.has(who.id) === false) {
             return new Array();
         }
@@ -88,6 +88,10 @@ export class SimpleSendingQueuen implements ISendingQueuen {
         const result = this.requests.get(who.id) as any[];
         this.requests.delete(who.id);
         return result;
+    }
+
+    public feedBack(id:string, status: SentStatus):void {
+
     }
 
     public count(who: Account): number {

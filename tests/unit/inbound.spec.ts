@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-21 15:24:00
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-02 15:07:05
+ * @LastEditTime: 2023-02-03 14:47:38
  * @FilePath: /pokeme/tests/unit/inbound.spec.ts
  * @Description: 
  */
@@ -64,7 +64,7 @@ describe('inbound test', () => {
         const refuseInvitee = factory.newInviteeRequest(testB.account, false);
         requests.push(refuseInvitee.request);
 
-        const chatMessage = factory.newMessage(testB.account, 1, "pokeme blesses your happy new year.");
+        const chatMessage = factory.newMessage(testB.account, "1", "pokeme blesses your happy new year.");
         requests.push(chatMessage.request);
 
         fakeReceived.set(testB.account.id, requests);

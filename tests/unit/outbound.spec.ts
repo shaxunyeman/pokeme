@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-19 14:56:53
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-02 15:08:47
+ * @LastEditTime: 2023-02-03 15:04:02
  * @FilePath: /pokeme/tests/unit/outbound.spec.ts
  * @Description: 
  */
@@ -45,17 +45,17 @@ describe('outbound test', () => {
             new JsonRSAWebTokenSigner(testA.key.privateKey));
         const outBound: Outbound = factory.newOutbound(new SimpleTransporter(), persistent);
         const msg = "hello, I'm pokeme."
-        let result = outBound.sendChatMessage(testC.id, 1, msg);
+        let result = outBound.sendChatMessage(testC.id, "1", msg);
         expect(result.code).toBe(PokeErrorCode.ACCOUNT_NOT_EXIST);
 
-        result = outBound.sendChatMessage(testB.id, 1, msg);
+        result = outBound.sendChatMessage(testB.id, "1", msg);
         expect(result.code).toBe(PokeErrorCode.SUCCESS);
 
         // sending a data should put into a sending queuen firstly 
         const sendingQueuen: SimpleSendingQueuen = persistent.getISendingQueuen() as SimpleSendingQueuen;
         expect(sendingQueuen.count(testB.id)).toBe(1);
 
-        result = outBound.sendChatMessage(testB.id, 2, msg);
+        result = outBound.sendChatMessage(testB.id, "2", msg);
         expect(result.code).toBe(PokeErrorCode.SUCCESS);
         expect(sendingQueuen.count(testB.id)).toBe(2);
 
@@ -64,7 +64,7 @@ describe('outbound test', () => {
         expect(sendingQueuen.count(testB.id)).toBe(0);
 
         msgs.forEach((value: any, _index: number) => {
-            expect((value as MessageBody)['message'] !== undefined).toBeTruthy();
+            expect((value.data as MessageBody)['message'] !== undefined).toBeTruthy();
         })
 
         result = outBound.sendInvite(testB.id, 'test description');
@@ -73,7 +73,7 @@ describe('outbound test', () => {
         expect(sendingQueuen.count(testB.id)).toBe(0);
 
         msgs.forEach((value: any, _index: number) => {
-            expect((value as PokeRequest)['command']).toBe(PokeCommand.INVITER);
+            expect((value.data as PokeRequest)['command']).toBe(PokeCommand.INVITER);
         })
 
         result = outBound.sendInvitee(testB.id, true, 'test description');
@@ -82,7 +82,7 @@ describe('outbound test', () => {
         expect(sendingQueuen.count(testB.id)).toBe(0);
 
         msgs.forEach((value: any, _index: number) => {
-            expect((value as PokeRequest)['command']).toBe(PokeCommand.INVITEE);
+            expect((value.data as PokeRequest)['command']).toBe(PokeCommand.INVITEE);
         })
     })
 
@@ -92,15 +92,18 @@ describe('outbound test', () => {
             this.sentQueuen = new Map<string, any[]>;
         }
 
-        public send(to:Account, data: any): any {
-            let msgs :any[];
-            if(this.sentQueuen.has(to.id)) {
-                msgs = this.sentQueuen.get(to.id) as any[];
-            } else {
-                msgs = new Array();
-            }
-            msgs.push(data);
-            this.sentQueuen.set(to.id, msgs);
+        public send(to:Account, data: any): Promise<any> {
+            return new Promise(resolve => {
+                let msgs: any[];
+                if (this.sentQueuen.has(to.id)) {
+                    msgs = this.sentQueuen.get(to.id) as any[];
+                } else {
+                    msgs = new Array();
+                }
+                msgs.push(data);
+                this.sentQueuen.set(to.id, msgs);
+                resolve(true);
+            });
         }
 
         public count(who: Account): number {
@@ -137,7 +140,7 @@ describe('outbound test', () => {
         const transporter: testTrasporter = new testTrasporter();
         const outBound: Outbound = factory.newOutbound(transporter, persistent);
         // simulate storage a data was unsuccessful using msgid equal -1024
-        const result = outBound.sendChatMessage(testB.id, -1024, 'storage_error');
+        const result = outBound.sendChatMessage(testB.id, '-1024', 'storage_error');
         expect(result.code).toBe(PokeErrorCode.SUCCESS);
         const sendingQueuen: SimpleSendingQueuen = persistent.getISendingQueuen() as SimpleSendingQueuen;
         expect(sendingQueuen.count(testB.id)).toBe(0);
@@ -155,11 +158,11 @@ describe('outbound test', () => {
         const outBound: Outbound = factory.newOutbound(transporter, persistent);
 
         const msg = "hello, I'm pokeme."
-        let result = outBound.sendChatMessage(testB.id, 1, msg);
+        let result = outBound.sendChatMessage(testB.id, "1", msg);
         expect(result.code).toBe(PokeErrorCode.SUCCESS);
 
         const msg2 = "hello, I'm pokeme too."
-        result = outBound.sendChatMessage(testB.id, 2, msg2);
+        result = outBound.sendChatMessage(testB.id, "2", msg2);
         expect(result.code).toBe(PokeErrorCode.SUCCESS);
         const sendingQueuen: SimpleSendingQueuen = persistent.getISendingQueuen() as SimpleSendingQueuen;
         expect(sendingQueuen.count(testB.id)).toBe(2);
@@ -175,7 +178,7 @@ describe('outbound test', () => {
         expect(chatMessage.body.length).toBe(2);
         outBound.stop();
 
-        result = outBound.sendChatMessage(testB.id, 3, msg);
+        result = outBound.sendChatMessage(testB.id, "3", msg);
         expect(result.code).toBe(PokeErrorCode.SYSTEM_STOPPED);
     })
 })

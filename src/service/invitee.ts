@@ -2,11 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:22:41
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-13 21:17:06
+ * @LastEditTime: 2023-02-03 14:11:01
  * @FilePath: /pokeme/src/service/invitee.ts
  * @Description: handle an invite request
  */
 
+import { v4 as uuid } from 'uuid';
 import { Identifer } from '@/model/identifer';
 import { PokeRequest, PokeCommand, InviteeBody } from '@/model/protocols';
 import { ISigner, IVerifier } from '@/service/signer';
@@ -48,6 +49,7 @@ export class Invitee {
         const token = this.jwtSigner.sign(body);
         const signature = this.signer.sign(token);
         const reqeust: PokeRequest = {
+            id: uuid(),
             command: PokeCommand.INVITEE,
             body: token,
             publicKey: id.publicKey,
@@ -77,6 +79,7 @@ export class Invitee {
         const token = this.jwtSigner.sign(body);
         const signature = this.signer.sign(token);
         const reqeust: PokeRequest = {
+            id: uuid(),
             command: PokeCommand.INVITEE,
             body: token,
             publicKey: id.publicKey,

@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-22 17:55:08
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-01 16:34:00
+ * @LastEditTime: 2023-02-02 17:12:42
  * @FilePath: /pokeme/src/service/imap/imap.ts
  * @Description: 
  */
@@ -10,7 +10,7 @@
 import Imap from 'imap';
 import mailparser from 'mailparser';
 import PubSub from 'pubsub-js';
-import { ImapEndpoint } from '@/model/imapConfig';
+import { ImapEndpoint } from '@/model/mailConfig';
 import { Identifer } from '@/model/identifer';
 import { ISensitivity } from '@/service/sensitivity';
 

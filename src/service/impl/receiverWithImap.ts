@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-31 11:20:24
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-02 15:26:50
+ * @LastEditTime: 2023-02-02 17:12:51
  * @FilePath: /pokeme/src/service/impl/receiverWithImap.ts
  * @Description: 
  */
@@ -14,7 +14,7 @@ import { IPersistent } from "@/service/dac/persistent";
 import { IImapBoxInfo } from "@/service/dac/imapboxinfo";
 import { Account } from "@/model/account";
 import { Identifer } from "@/model/identifer";
-import { ImapEndpoint } from "@/model/imapConfig";
+import { ImapEndpoint } from "@/model/mailConfig";
 
 enum OpenBoxStatus {
     INIT,

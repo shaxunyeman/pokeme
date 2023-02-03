@@ -2,11 +2,12 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-02 12:12:31
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-13 17:09:51
+ * @LastEditTime: 2023-02-03 14:13:14
  * @FilePath: /pokeme/src/service/inviter.ts
  * @Description: invite a person
  */
 
+import {v4 as uuidv4} from 'uuid';
 import { Identifer } from '@/model/identifer';
 import { PokeRequest, PokeCommand, InviterBody } from '@/model/protocols';
 import { ISigner } from '@/service/signer';
@@ -43,6 +44,7 @@ export class Inviter {
         const hash = sha256(signature);
 
         const request: PokeRequest = {
+            id: uuidv4(),
             command: PokeCommand.INVITER,
             body: token,
             publicKey: id.publicKey,

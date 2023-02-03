@@ -2,13 +2,13 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-22 18:56:39
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-02-01 16:34:13
+ * @LastEditTime: 2023-02-02 17:36:26
  * @FilePath: /pokeme/tests/unit/imap/imap.spec.ts
  * @Description: 
  */
 
 import { PokeImap, PokeImapConnectEvent } from "@/service/imap/imap";
-import { ImapDefualtConfig } from "@/data/imapConfigData";
+import { ImapDefualtConfig } from "@/data/mailConfigData";
 import { TestAccount, TestSensitivity } from "../units";
 
 // jest.setTimeout(60 * 1000);

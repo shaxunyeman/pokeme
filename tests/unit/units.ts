@@ -2,7 +2,7 @@
  * @Author: dbliu shaxunyeman@gmail.com
  * @Date: 2023-01-07 14:09:04
  * @LastEditors: dbliu shaxunyeman@gmail.com
- * @LastEditTime: 2023-01-31 16:50:11
+ * @LastEditTime: 2023-02-03 14:47:23
  * @FilePath: /pokeme/tests/unit/units.ts
  * @Description: 
  */
@@ -92,7 +92,7 @@ export class Factory {
         }
     }
 
-    public newMessage(to: Account, msgId: number, message: string): {request: PokeRequest, hash: string} {
+    public newMessage(to: Account, msgId: string, message: string): {request: PokeRequest, hash: string} {
         const messages: Messages = new Messages(this.signer, this.jwtSigner);
         return messages.singleChat(this.id, to, msgId, message);
     }
